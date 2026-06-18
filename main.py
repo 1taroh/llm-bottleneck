@@ -81,7 +81,7 @@ def run_profiler(duration_sec=5., interval_sec=0.5):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("-s", help="how many seconds run the profiler")
+    parser.add_argument("-s", help="how many seconds run the profiler", default="10")
     args = parser.parse_args()
 
     run_profiler(float(args.s))
