@@ -43,17 +43,16 @@ class IntelVulkanCollector(BaseCollector):
         self.counters = []
         
         # 3Dグラフィックス負荷とCompute負荷のカウンターパスを設定
-        # LUID（0x*）やGPU番号は環境に合わせて自動展開されます
+        # LUID（0x*）やGPU番号は環境に合わせて自動展開されます        
         paths_to_track = [
-            r"\GPU Engine(pid_*_luid_0x*_engtype_3D)\Utilization",
-            r"\GPU Engine(pid_*_luid_0x*_engtype_Compute)\Utilization"
+            r"\GPU Engine(pid_*_luid_*_engtype_3D)\Utilization Percentage",
+            r"\GPU Engine(pid_*_luid_*_engtype_Compute)\Utilization Percentage"
         ]
-        
+
         for base_path in paths_to_track:
             try:
                 expanded_paths = win32pdh.ExpandCounterPath(base_path)
                 for path in expanded_paths:
-                    # 念のためIntel系、あるいはシステム全体のカウンターを登録
                     self.counters.append(win32pdh.AddCounter(self.hq, path))
             except Exception:
                 pass
@@ -123,7 +122,10 @@ class IntelVulkanCollector(BaseCollector):
         return metrics
 
     def _collect_linux(self, metrics: dict) -> dict:
-        """Linux環境でのメトリクス収集"""
+        """
+        Linux環境でのメトリクス収集
+        TODO: linux 環境での検証
+        """
         if not self.process or self.process.poll() is not None:
             return metrics
             
