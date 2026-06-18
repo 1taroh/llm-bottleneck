@@ -2,14 +2,32 @@ import argparse
 import time
 import polars as pl
 from collectors.nvidia import NvidiaCollector
+from collectors.intel import IntelVulkanCollector
 from collectors.no_gpu import NoGpuCollector
 
 def run_profiler(duration_sec=5., interval_sec=0.5):
-    # 本来はここでGPU検知。今回は暫定でNVIDIAを使用
-    try:
-        collector = NvidiaCollector()
-    except Exception:
-        collector = NoGpuCollector()
+# 試行したいコレクターを優先度順に並べる
+    collector_classes = [
+        NvidiaCollector,
+        IntelVulkanCollector,
+        NoGpuCollector  # 最終フォールバック
+    ]
+    
+    collector = None
+    
+    # 成功するまで順番に try を繰り返す
+    for CollectorClass in collector_classes:
+        try:
+            collector = CollectorClass()
+            print(f"Successfully initialized: {CollectorClass.__name__}")
+            break  # 初期化に成功したらループを抜ける
+        except Exception as e:
+            print(f"Failed to initialize {CollectorClass.__name__}: {e}")
+            continue
+
+    # 万が一、すべてのコレクターが失敗した場合のセーフティ
+    if collector is None:
+        raise RuntimeError("すべてのコレクターの初期化に失敗しました。")
 
     raw_samples = []
     steps = int(duration_sec / interval_sec)
@@ -45,9 +63,21 @@ def run_profiler(duration_sec=5., interval_sec=0.5):
         if avg_val is None or max_val is None:
             continue
             
-        print(f"{metric}:")
-        print(f"  - max: {max_val:.2f}")
-        print(f"  - ave: {avg_val:.2f}")
+        print(metric)
+        if "percent" in metric:
+            unit = "%"
+        elif "gb" in metric:
+            unit = "GB"
+        elif "mbps" in metric:
+            unit = "Mbps"
+        else:
+            unit = ""
+        # 'cpu_util_percent' から 'cpu' のように扱いやすい名前にパース
+        display_name = metric.replace("_percent", "").replace("_gb", "").replace("_mbps", "")
+        
+        print(f"{display_name}:")
+        print(f"  - max: {max_val:.2f} {unit}")
+        print(f"  - ave: {avg_val:.2f} {unit}")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
