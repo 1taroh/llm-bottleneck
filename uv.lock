@@ -10,7 +10,7 @@ dependencies = [
     { name = "nvidia-ml-py" },
     { name = "polars" },
     { name = "psutil" },
-    { name = "pywin32" },
+    { name = "pywin32", marker = "sys_platform == 'win32'" },
 ]
 
 [package.metadata]
@@ -18,7 +18,7 @@ requires-dist = [
     { name = "nvidia-ml-py", specifier = ">=13.610.43" },
     { name = "polars", specifier = ">=1.41.2" },
     { name = "psutil", specifier = ">=7.2.2" },
-    { name = "pywin32", specifier = ">=312" },
+    { name = "pywin32", marker = "sys_platform == 'win32'", specifier = ">=312" },
 ]
 
 [[package]]
