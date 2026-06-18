@@ -45,13 +45,9 @@ def run_profiler(duration_sec=5., interval_sec=0.5):
         if avg_val is None or max_val is None:
             continue
             
-        # 見やすさのために、アンダーバーをスペースに置換するか、
-        # 'cpu_util_percent' から 'cpu' のように扱いやすい名前にパース
-        display_name = metric.replace("_percent", "").replace("_gb", "").replace("_mbps", "")
-        
-        print(f"{display_name}:")
-        print(f"  - max: {max_val:.2f} %")
-        print(f"  - ave: {avg_val:.2f} %")
+        print(f"{metric}:")
+        print(f"  - max: {max_val:.2f}")
+        print(f"  - ave: {avg_val:.2f}")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
