@@ -5,20 +5,23 @@ from collectors.nvidia import NvidiaCollector
 from collectors.intel import IntelVulkanCollector
 from collectors.no_gpu import NoGpuCollector
 
-def run_profiler(duration_sec=5., interval_sec=0.5):
+def run_profiler(duration_sec=5., interval_sec=0.5, gpu_index=0):
 # 試行したいコレクターを優先度順に並べる
     collector_classes = [
         NvidiaCollector,
         IntelVulkanCollector,
         NoGpuCollector  # 最終フォールバック
     ]
-    
+    init_args = {
+        NvidiaCollector: {'gpu_index': gpu_index}
+    }
     collector = None
     
     # 成功するまで順番に try を繰り返す
     for CollectorClass in collector_classes:
         try:
-            collector = CollectorClass()
+            args = init_args.get(CollectorClass, {})
+            collector = CollectorClass(**args)
             print(f"Successfully initialized: {CollectorClass.__name__}")
             break  # 初期化に成功したらループを抜ける
         except Exception as e:
@@ -82,6 +85,7 @@ def run_profiler(duration_sec=5., interval_sec=0.5):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-s", help="how many seconds run the profiler", default="10")
+    parser.add_argument("--gpu_index", help="how many seconds run the profiler", default="0")
     args = parser.parse_args()
 
-    run_profiler(float(args.s))
+    run_profiler(float(args.s), gpu_index=int( args.gpu_index))

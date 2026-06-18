@@ -2,10 +2,10 @@ import pynvml
 from .base import BaseCollector
 
 class NvidiaCollector(BaseCollector):
-    def __init__(self, device_index: int = 0):
+    def __init__(self, gpu_index: int = 0):
         super().__init__()
         pynvml.nvmlInit()
-        self.handle = pynvml.nvmlDeviceGetHandleByIndex(device_index)
+        self.handle = pynvml.nvmlDeviceGetHandleByIndex(gpu_index)
 
     def collect(self) -> dict:
         # ホスト側の共通メトリクスを取得
